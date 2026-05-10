@@ -1,6 +1,20 @@
+import os
+
 from fastapi.testclient import TestClient
 
 from src.api.app import app
+
+from src.pipelines.training_pipeline import (
+    run_training_pipeline
+)
+
+
+# Ensure artifacts exist
+if not os.path.exists(
+    "artifacts/models/model.pkl"
+):
+
+    run_training_pipeline()
 
 
 client = TestClient(app)
