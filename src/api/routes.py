@@ -22,7 +22,7 @@ def home():
 def predict(data: PassengerInput):
 
     # Convert Pydantic model to dict
-    input_data = data.dict()
+    input_data = data.model_dump()
 
     # Prediction pipeline
     pipeline = PredictionPipeline()
