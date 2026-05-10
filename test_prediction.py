@@ -1,36 +1,44 @@
+import os
+
+from src.pipelines.training_pipeline import (
+    run_training_pipeline
+)
+
 from src.prediction.predict import (
     PredictionPipeline
 )
 
 
-sample_passenger = {
+def test_prediction_pipeline():
 
-    "Pclass": 3,
+    # Train model if artifacts missing
+    if not os.path.exists(
+        "artifacts/models/model.pkl"
+    ):
 
-    "Sex": "male",
+        run_training_pipeline()
 
-    "Age": 22,
+    sample_passenger = {
 
-    "SibSp": 1,
+        "Pclass": 3,
 
-    "Parch": 0,
+        "Sex": "male",
 
-    "Fare": 7.25,
+        "Age": 22,
 
-    "Embarked": "S"
-}
+        "SibSp": 1,
 
+        "Parch": 0,
 
-pipeline = PredictionPipeline()
+        "Fare": 7.25,
 
-prediction = pipeline.predict(
-    sample_passenger
-)
+        "Embarked": "S"
+    }
 
-if prediction == 1:
+    pipeline = PredictionPipeline()
 
-    print("Passenger Survived")
+    prediction = pipeline.predict(
+        sample_passenger
+    )
 
-else:
-
-    print("Passenger Did Not Survive")
+    assert prediction in [0, 1]
