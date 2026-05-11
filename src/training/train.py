@@ -1,8 +1,9 @@
-import pandas as pd
+import os
 import mlflow
 import mlflow.sklearn
+import pandas as pd
+
 from sklearn.ensemble import RandomForestClassifier
-import os
 
 from src.preprocessing.preprocessing import (
     DataPreprocessing
@@ -32,7 +33,6 @@ class ModelTrainer:
         train_path,
         test_path
     ):
-        
 
         # Load datasets
         train_df = pd.read_csv(train_path)
@@ -82,25 +82,20 @@ class ModelTrainer:
             preprocessor.transform(X_test)
         )
 
-        # Train model
-        # Set MLflow tracking URI
+        # MLflow tracking
         mlflow.set_tracking_uri(
             "file:./mlruns"
         )
-        
-
 
         with mlflow.start_run():
 
-            # Parameters
-            n_estimators = 100
-
             # Model
             model = RandomForestClassifier(
-                n_estimators=n_estimators,
+                n_estimators=100,
                 random_state=42
             )
 
+            # Train
             model.fit(
                 X_train_processed,
                 y_train
@@ -121,12 +116,6 @@ class ModelTrainer:
                 predictions
             )
 
-            # Log parameters
-            mlflow.log_param(
-                "n_estimators",
-                n_estimators
-            )
-
             # Log metrics
             for key, value in metrics.items():
 
@@ -135,16 +124,35 @@ class ModelTrainer:
                     value
                 )
 
-            # Log model
-            mlflow.sklearn.log_model(
-                model,
-                "random_forest_model"
+            # Log parameter
+            mlflow.log_param(
+                "n_estimators",
+                100
             )
 
+            # Log model
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                name="random_forest_model"
+            )
 
+        # SAVE ARTIFACTS LOCALLY
+        save_object(
+            config["artifacts"]["model_path"],
+            model
+        )
 
+        save_object(
+            config["artifacts"]["preprocessor_path"],
+            preprocessor
+        )
 
+        # SAVE METRICS JSON
+        metrics_obj.save_metrics(
+            metrics,
+            config["artifacts"]["metrics_path"]
+        )
 
-
-
-        
+        print(
+            "Training pipeline completed successfully"
+        )
