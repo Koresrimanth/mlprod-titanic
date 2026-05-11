@@ -1,13 +1,23 @@
 import pandas as pd
-
+import mlflow
+import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
 
-from src.preprocessing.preprocessing import DataPreprocessing
-from src.features.feature_engineering import FeatureEngineering
+from src.preprocessing.preprocessing import (
+    DataPreprocessing
+)
+
+from src.features.feature_engineering import (
+    FeatureEngineering
+)
 
 from src.utils.common import (
     save_object,
     read_yaml
+)
+
+from src.utils.metrics import (
+    ClassificationMetrics
 )
 
 
@@ -16,20 +26,46 @@ config = read_yaml("configs/config.yaml")
 
 class ModelTrainer:
 
-    def train(self, train_path):
+    def train(
+        self,
+        train_path,
+        test_path
+    ):
+        
 
-        # Read dataset
-        df = pd.read_csv(train_path)
+        # Load datasets
+        train_df = pd.read_csv(train_path)
+
+        test_df = pd.read_csv(test_path)
 
         # Feature engineering
-        feature_engineering = FeatureEngineering()
+        feature_engineering = (
+            FeatureEngineering()
+        )
 
-        df = feature_engineering.transform_features(df)
+        train_df = (
+            feature_engineering
+            .transform_features(train_df)
+        )
 
-        # Split features and target
-        X = df.drop(columns=["Survived"])
+        test_df = (
+            feature_engineering
+            .transform_features(test_df)
+        )
 
-        y = df["Survived"]
+        # Split train
+        X_train = train_df.drop(
+            columns=["Survived"]
+        )
+
+        y_train = train_df["Survived"]
+
+        # Split test
+        X_test = test_df.drop(
+            columns=["Survived"]
+        )
+
+        y_test = test_df["Survived"]
 
         # Preprocessing
         preprocessor = (
@@ -37,28 +73,71 @@ class ModelTrainer:
             .get_preprocessor()
         )
 
-        X_processed = preprocessor.fit_transform(X)
-
-        # Model
-        model = RandomForestClassifier(
-            n_estimators=100,
-            random_state=42
+        X_train_processed = (
+            preprocessor.fit_transform(X_train)
         )
 
-        model.fit(X_processed, y)
-
-        # Save model
-        save_object(
-            config["artifacts"]["model_path"],
-            model
+        X_test_processed = (
+            preprocessor.transform(X_test)
         )
 
-        # Save preprocessor
-        save_object(
-            config["artifacts"]["preprocessor_path"],
-            preprocessor
-        )
+        # Train model
 
-        print("Model training completed")
+        with mlflow.start_run():
 
-        return model
+            # Parameters
+            n_estimators = 100
+
+            # Model
+            model = RandomForestClassifier(
+                n_estimators=n_estimators,
+                random_state=42
+            )
+
+            model.fit(
+                X_train_processed,
+                y_train
+            )
+
+            # Predictions
+            predictions = model.predict(
+                X_test_processed
+            )
+
+            # Metrics
+            metrics_obj = (
+                ClassificationMetrics()
+            )
+
+            metrics = metrics_obj.evaluate(
+                y_test,
+                predictions
+            )
+
+            # Log parameters
+            mlflow.log_param(
+                "n_estimators",
+                n_estimators
+            )
+
+            # Log metrics
+            for key, value in metrics.items():
+
+                mlflow.log_metric(
+                    key,
+                    value
+                )
+
+            # Log model
+            mlflow.sklearn.log_model(
+                model,
+                "random_forest_model"
+            )
+
+
+
+
+
+
+
+        

@@ -17,21 +17,24 @@ def home():
         "message": "Titanic ML API Running"
     }
 
-
 @router.post("/predict")
 def predict(data: PassengerInput):
 
-    # Convert Pydantic model to dict
+    # Convert input
     input_data = data.model_dump()
 
-    # Prediction pipeline
+    # Pipeline
     pipeline = PredictionPipeline()
 
     prediction = pipeline.predict(
         input_data
     )
 
-    # Return prediction
+    probability = pipeline.predict_proba(
+        input_data
+    )
+
+    # Result
     if prediction == 1:
 
         result = "Survived"
@@ -41,5 +44,11 @@ def predict(data: PassengerInput):
         result = "Did Not Survive"
 
     return {
-        "prediction": result
+
+        "prediction": result,
+
+        "survival_probability": round(
+            probability,
+            2
+        )
     }

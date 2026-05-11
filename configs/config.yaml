@@ -7,3 +7,4 @@ artifacts:
   test_data_path: data/processed/test.csv
   model_path: artifacts/models/model.pkl
   preprocessor_path: artifacts/preprocessors/preprocessor.pkl
+  metrics_path: artifacts/metrics/metrics.json

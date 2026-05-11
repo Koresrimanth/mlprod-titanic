@@ -57,3 +57,4 @@ def test_predict_route():
     assert response.status_code == 200
 
     assert "prediction" in response.json()
+    

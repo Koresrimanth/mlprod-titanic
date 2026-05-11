@@ -6,3 +6,6 @@ fastapi
 uvicorn
 pytest
 httpx
+mlflow
+streamlit
+requests

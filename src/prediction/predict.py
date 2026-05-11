@@ -8,6 +8,10 @@ from src.utils.common import (
 from src.features.feature_engineering import (
     FeatureEngineering
 )
+from src.monitoring.prediction_monitor import (
+    PredictionMonitor
+)
+
 
 
 config = read_yaml("configs/config.yaml")
@@ -31,6 +35,7 @@ class PredictionPipeline:
         self.feature_engineering = (
             FeatureEngineering()
         )
+        self.monitor = PredictionMonitor()
 
     def predict(self, input_data: dict):
 
@@ -50,4 +55,36 @@ class PredictionPipeline:
             transformed_data
         )
 
+        self.monitor.log_prediction(
+                        input_data,
+                        prediction[0]
+                        )
+        
         return prediction[0]
+    
+    def predict_proba(
+    self,
+    input_data: dict
+):
+
+        df = pd.DataFrame([input_data])
+
+        # Feature engineering
+        df = (
+            self.feature_engineering
+            .transform_features(df)
+        )
+
+        # Transform
+        transformed_data = (
+            self.preprocessor.transform(df)
+        )
+
+        # Probability
+        probability = (
+            self.model.predict_proba(
+                transformed_data
+            )
+        )
+
+        return float(probability[0][1])

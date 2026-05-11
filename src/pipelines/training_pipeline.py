@@ -9,6 +9,9 @@ def run_training_pipeline():
 
     trainer = ModelTrainer()
 
-    trainer.train(train_path)
+    trainer.train(
+    train_path,
+    test_path
+)
 
     print("Training pipeline completed successfully")
