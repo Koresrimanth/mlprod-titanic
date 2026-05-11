@@ -2,6 +2,7 @@ import pandas as pd
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
+import os
 
 from src.preprocessing.preprocessing import (
     DataPreprocessing
@@ -82,6 +83,12 @@ class ModelTrainer:
         )
 
         # Train model
+        # Set MLflow tracking URI
+        mlflow.set_tracking_uri(
+            "file:./mlruns"
+        )
+        
+
 
         with mlflow.start_run():
 

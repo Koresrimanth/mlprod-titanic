@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/kores/OneDrive/Desktop/titanic-mlops/mlruns/0/models/m-3f456c7a4bf2401d9b384cc7ae18df82/artifacts
+creation_timestamp: 1778517576599
+experiment_id: '0'
+last_updated_timestamp: 1778517583559
+model_id: m-3f456c7a4bf2401d9b384cc7ae18df82
+model_type: null
+name: random_forest_model
+source_run_id: 53e2fc9914694a198442f95ee1a07a6e
+status: 2
+status_message: null
